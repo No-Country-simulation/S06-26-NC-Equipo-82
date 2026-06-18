@@ -5,8 +5,11 @@ import Mentorias from "./adapters/presentation/pages/Mentorias"
 import Experiencias from "./adapters/presentation/pages/Experiencias"
 import Cursos from "./adapters/presentation/pages/Cursos"
 import Perfil from "./adapters/presentation/pages/Perfil"
+import Login from "./adapters/presentation/pages/login"
+import { useAuth } from "./adapters/presentation/context/AuthContext"
 
 function App() {
+  const { state } = useAuth()
   const [activePage, setActivePage] = useState("Dashboard")
 
   const renderPage = () => {
@@ -26,6 +29,12 @@ function App() {
     }
   }
 
+  // Si el usuario no está autenticado mostrar Login
+  if (!state.isAuthenticated) {
+    return <Login />
+  }
+
+  // Si está autenticado mostrar NavBar + páginas
   return (
     <>
       <NavBar activePage={activePage} onNavigate={setActivePage} />

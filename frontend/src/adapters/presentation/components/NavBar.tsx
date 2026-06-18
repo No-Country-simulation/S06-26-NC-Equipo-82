@@ -1,7 +1,9 @@
 import { useState } from "react"
+import { useAuth } from "../context/AuthContext"
 
 const NavBar = ({ activePage, onNavigate }: { activePage: string; onNavigate: (page: string) => void }) => {
   const [isOpen, setIsOpen] = useState(false)
+  const { dispatch } = useAuth()
 
   const navItems = [
     { label: "Perfil", page: "Perfil" },
@@ -67,7 +69,12 @@ const NavBar = ({ activePage, onNavigate }: { activePage: string; onNavigate: (p
             </ul>
             <ul className="flex flex-col gap-4 w-full text-center">
               <li className="w-full text-center p-2 rounded-lg transition-all hover:bg-[#00BFFF] hover:text-[#FFFFFF]">Ayuda</li>
-              <li className="w-full text-center p-2 rounded-lg transition-all hover:bg-[#00BFFF] hover:text-[#FFFFFF]">Cerrar sesión</li>
+              <li
+                className="w-full text-center p-2 rounded-lg transition-all hover:bg-red-500 hover:text-white cursor-pointer"
+                onClick={() => dispatch({ type: "LOGOUT" })}
+              >
+                Cerrar sesión
+              </li>
             </ul>
           </nav>
         </div>
