@@ -6,6 +6,7 @@ import Experiencias from "./adapters/presentation/pages/Experiencias"
 import Cursos from "./adapters/presentation/pages/Cursos"
 import Perfil from "./adapters/presentation/pages/Perfil"
 import Login from "./adapters/presentation/pages/login"
+import FormularioOnboarding from "./adapters/presentation/pages/formularioOnboarding"
 import { useAuth } from "./adapters/presentation/context/AuthContext"
 
 function App() {
@@ -27,6 +28,11 @@ function App() {
       default:
         return <Dashboard />
     }
+  }
+
+  // Si completó el registro, mostrar onboarding
+  if (state.isRegistered && !state.isAuthenticated) {
+    return <FormularioOnboarding />
   }
 
   // Si el usuario no está autenticado mostrar Login

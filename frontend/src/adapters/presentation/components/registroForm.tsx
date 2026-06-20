@@ -32,9 +32,8 @@ const RegistroForm = ({ setRegister }: RegistroFormProps) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         const fullData = { ...formData, ...location }
-        dispatch({ type: "SET_REGISTER_DATA", payload: fullData })
-        console.log("✅ Datos de registro guardados en estado global:", fullData)
-        // TODO: llamar al servicio de registro con fullData
+        dispatch({ type: "REGISTER_COMPLETE", payload: fullData })
+        console.log("✅ Registro completado, redirigiendo a onboarding:", fullData)
     }
 
     return (

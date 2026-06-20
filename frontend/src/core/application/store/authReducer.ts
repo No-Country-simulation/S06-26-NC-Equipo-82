@@ -16,6 +16,7 @@ export interface RegisterData {
 export interface AuthState {
     registerData: RegisterData | null
     isAuthenticated: boolean
+    isRegistered: boolean
     userEmail: string | null
 }
 
@@ -24,6 +25,7 @@ export interface AuthState {
 export const initialAuthState: AuthState = {
     registerData: null,
     isAuthenticated: false,
+    isRegistered: false,
     userEmail: null,
 }
 
@@ -31,6 +33,7 @@ export const initialAuthState: AuthState = {
 
 export type AuthAction =
     | { type: "SET_REGISTER_DATA"; payload: RegisterData }
+    | { type: "REGISTER_COMPLETE"; payload: RegisterData }
     | { type: "LOGIN"; payload: { email: string } }
     | { type: "LOGOUT" }
     | { type: "CLEAR_REGISTER_DATA" }
@@ -43,6 +46,13 @@ export function authReducer(state: AuthState, action: AuthAction): AuthState {
             return {
                 ...state,
                 registerData: action.payload,
+            }
+
+        case "REGISTER_COMPLETE":
+            return {
+                ...state,
+                registerData: action.payload,
+                isRegistered: true,
             }
 
         case "LOGIN":
