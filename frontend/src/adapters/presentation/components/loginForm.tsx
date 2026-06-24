@@ -1,43 +1,39 @@
 import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
+import { login } from "../../../core/application/useCases/authUseCases"
 
 interface LoginFormProps {
     setRegister: (value: boolean) => void
 }
 
 const LoginForm = ({ setRegister }: LoginFormProps) => {
-    const { state, dispatch } = useAuth()
+    const { dispatch } = useAuth()
 
     const [formData, setFormData] = useState({ email: "", password: "" })
+    const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
-        setError("") // limpiar error al escribir
+        setError("")
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setLoading(true)
+        setError("")
 
-        const { registerData } = state
+        const { data, error: apiError } = await login(formData.email, formData.password)
 
-        // Verificar si hay datos de registro guardados
-        if (!registerData) {
-            setError("No hay cuenta registrada. Por favor, regístrate primero.")
+        if (apiError) {
+            setError(apiError)
+            setLoading(false)
             return
         }
 
-        // Comparar credenciales con los datos temporales guardados
-        const emailMatch = formData.email === registerData.email
-        const passwordMatch = formData.password === registerData.password
-
-        if (!emailMatch || !passwordMatch) {
-            setError("Email o contraseña incorrectos.")
-            return
+        if (data) {
+            dispatch({ type: "LOGIN", payload: { email: data.email } })
         }
-
-        // Credenciales correctas → autenticar
-        dispatch({ type: "LOGIN", payload: { email: formData.email } })
     }
 
     return (
@@ -86,9 +82,10 @@ const LoginForm = ({ setRegister }: LoginFormProps) => {
 
                     <button
                         type="submit"
-                        className="bg-[#00BFFF] hover:bg-[#009FDF] text-white rounded-lg p-2.5 mt-2 font-semibold text-sm sm:text-base transition-colors w-full"
+                        disabled={loading}
+                        className="bg-[#00BFFF] hover:bg-[#009FDF] text-white rounded-lg p-2.5 mt-2 font-semibold text-sm sm:text-base transition-colors w-full disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Iniciar sesión
+                        {loading ? "Iniciando sesión..." : "Iniciar sesión"}
                     </button>
 
                     <span className="text-center text-sm text-gray-600 pb-4">

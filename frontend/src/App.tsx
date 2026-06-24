@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import NavBar from "./adapters/presentation/components/NavBar"
 import Dashboard from "./adapters/presentation/pages/Dashboard"
 import Mentorias from "./adapters/presentation/pages/Mentorias"
@@ -12,6 +12,12 @@ import { useAuth } from "./adapters/presentation/context/AuthContext"
 function App() {
   const { state } = useAuth()
   const [activePage, setActivePage] = useState("Dashboard")
+
+  useEffect(() => {
+    if (state.isAuthenticated && state.isRegistered) {
+      setActivePage("Dashboard")
+    }
+  }, [state.isAuthenticated, state.isRegistered])
 
   const renderPage = () => {
     switch (activePage) {

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
+import { submitOnboarding } from "../../../core/application/useCases/authUseCases"
 
 // ── Datos ────────────────────────────────────────────────────────────────────
 
@@ -130,6 +131,8 @@ const FormularioOnboarding = () => {
     const [nivel, setNivel]         = useState("")
     const [areas, setAreas]         = useState<string[]>([])
     const [objetivos, setObjetivos] = useState<string[]>([])
+    const [loading, setLoading]     = useState(false)
+    const [error, setError]         = useState("")
 
     const toggleArea = (value: string) => {
         setAreas(prev =>
@@ -157,9 +160,27 @@ const FormularioOnboarding = () => {
             ? "¿En qué área de tecnología trabajas?"
             : "¿Cuáles son tus objetivos laborales?"
 
-    const handleFinish = () => {
+    const handleFinish = async () => {
+        setLoading(true)
+        setError("")
+
+        const onboardingData = {
+            email: state.registerData?.email ?? "",
+            nivel,
+            areas,
+            objetivos,
+        }
+
+        const { error: apiError } = await submitOnboarding(onboardingData)
+
+        if (apiError) {
+            setError(apiError)
+            setLoading(false)
+            return
+        }
+
         dispatch({ type: "LOGIN", payload: { email: state.registerData?.email ?? "" } })
-        console.log("✅ Onboarding completado:", { nivel, areas, objetivos })
+        console.log("✅ Onboarding completado:", onboardingData)
     }
 
     return (
@@ -370,10 +391,10 @@ const FormularioOnboarding = () => {
                     {step < STEPS.length ? (
                         <button
                             onClick={() => setStep(s => s + 1)}
-                            disabled={!canNext}
+                            disabled={!canNext || loading}
                             className={`
                                 px-6 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200
-                                ${canNext
+                                ${canNext && !loading
                                     ? "bg-[#00BFFF] hover:bg-[#009FDF] text-white shadow-md hover:shadow-lg active:scale-95"
                                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                                 }
@@ -384,20 +405,28 @@ const FormularioOnboarding = () => {
                     ) : (
                         <button
                             onClick={handleFinish}
-                            disabled={!canNext}
+                            disabled={!canNext || loading}
                             className={`
                                 px-6 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200
-                                ${canNext
+                                ${canNext && !loading
                                     ? "bg-gradient-to-r from-[#00BFFF] to-[#0070D8] hover:opacity-90 text-white shadow-md hover:shadow-lg active:scale-95"
                                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                                 }
                             `}
                         >
-                            ¡Comenzar! 🚀
+                            {loading ? "Guardando..." : "¡Comenzar! 🚀"}
                         </button>
                     )}
                 </div>
 
+                {/* Mensaje de error */}
+                {error && (
+                    <div className="px-7 pb-2">
+                        <p className="text-red-500 text-sm text-center bg-red-50 border border-red-200 rounded-lg p-2">
+                            {error}
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     )

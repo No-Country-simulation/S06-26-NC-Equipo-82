@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
+import { logout } from "../../../core/application/useCases/authUseCases"
 
 const NavBar = ({ activePage, onNavigate }: { activePage: string; onNavigate: (page: string) => void }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -71,7 +72,10 @@ const NavBar = ({ activePage, onNavigate }: { activePage: string; onNavigate: (p
               <li className="w-full text-center p-2 rounded-lg transition-all hover:bg-[#00BFFF] hover:text-[#FFFFFF]">Ayuda</li>
               <li
                 className="w-full text-center p-2 rounded-lg transition-all hover:bg-red-500 hover:text-white cursor-pointer"
-                onClick={() => dispatch({ type: "LOGOUT" })}
+                onClick={async () => {
+                    await logout()
+                    dispatch({ type: "LOGOUT" })
+                }}
               >
                 Cerrar sesión
               </li>

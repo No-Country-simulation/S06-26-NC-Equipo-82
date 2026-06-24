@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
 import LocationSelector, { type LocationValue } from "./LocationSelector"
+import { registerUser } from "../../../core/application/useCases/authUseCases"
 
 interface RegistroFormProps {
     setRegister: (value: boolean) => void
@@ -25,13 +26,28 @@ const RegistroForm = ({ setRegister }: RegistroFormProps) => {
         ciudad: "",
     })
 
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState("")
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setLoading(true)
+        setError("")
+
         const fullData = { ...formData, ...location }
+        
+        const { error: apiError } = await registerUser(fullData)
+        
+        if (apiError) {
+            setError(apiError)
+            setLoading(false)
+            return
+        }
+        
         dispatch({ type: "REGISTER_COMPLETE", payload: fullData })
         console.log("✅ Registro completado, redirigiendo a onboarding:", fullData)
     }
@@ -146,12 +162,20 @@ const RegistroForm = ({ setRegister }: RegistroFormProps) => {
                         <LocationSelector value={location} onChange={setLocation} />
                     </div>
 
+                    {/* Mensaje de error */}
+                    {error && (
+                        <p className="text-red-500 text-sm text-center bg-red-50 border border-red-200 rounded-lg p-2">
+                            {error}
+                        </p>
+                    )}
+
                     {/* ── Submit ────────────────────────────────────────── */}
                     <button
                         type="submit"
-                        className="bg-[#00BFFF] hover:bg-[#009FDF] text-white rounded-lg p-2.5 mt-2 font-semibold text-sm sm:text-base transition-colors w-full"
+                        disabled={loading}
+                        className="bg-[#00BFFF] hover:bg-[#009FDF] text-white rounded-lg p-2.5 mt-2 font-semibold text-sm sm:text-base transition-colors w-full disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Crear cuenta
+                        {loading ? "Creando cuenta..." : "Crear cuenta"}
                     </button>
 
                     <span className="text-center text-sm text-gray-600 pb-4">
